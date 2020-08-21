@@ -1,5 +1,7 @@
 ﻿using System;
-
+/// <summary>
+/// 
+/// </summary>
 namespace NearestNeighbors
 {
     class kNN
@@ -11,7 +13,7 @@ namespace NearestNeighbors
             double[][] trainData = LoadData();
             int numClasses = 3;
             double[] unknown = new double[] {5.25, 1.75}; // Values to predict
-            int k = 10;
+            int k = 10; // User-defined constant - number of neighbors of which to form the voting pool.
             int prediction = Predict(unknown, trainData, numClasses, k);
             Console.WriteLine("Predicted Class: " + prediction);
         }
@@ -45,6 +47,7 @@ namespace NearestNeighbors
         /// <returns>A doubly nested array representation of the matrix.</returns>
         static double[][] LoadData()
         {
+            /// TODO: Allow to read from filepath or buffer
             double[][] data = new double[10][];
 
             data[0] = new double[] {1.1, 5.0, 0};
@@ -52,7 +55,7 @@ namespace NearestNeighbors
             data[2] = new double[] {2.3, 4.0, 2};
             data[3] = new double[] {2.3, 2.0, 2};
             data[4] = new double[] {3.3, 4.0, 2};
-            data[5] = new double[] {2.3, 1.0, 2};
+            data[5] = new double[] {2.3, 2.0, 2};
             data[6] = new double[] {2.3, 4.0, 2};
             data[7] = new double[] {2.3, 4.0, 2};
             data[8] = new double[] {2.3, 4.0, 2};
@@ -61,6 +64,12 @@ namespace NearestNeighbors
             return data;
 
         }
+        /// <summary>
+        /// Euclidean distance between two points.
+        /// </summary>
+        /// <param name="unknown"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         static double Distance(double[] unknown, double[] data)
         {
             double sum = 0.0;
@@ -69,13 +78,13 @@ namespace NearestNeighbors
             return Math.Sqrt(sum);
         }
         /// <summary>
-        /// Return predicted class for each observation
+        /// Return predicted class for each observation.
         /// </summary>
-        /// <param name="info"></param>
-        /// <param name="trainData"></param>
-        /// <param name="numClasses"></param>
-        /// <param name="k"></param>
-        /// <returns></returns>
+        /// <param name="info">Index and distance information.</param>
+        /// <param name="trainData">X: data to train with.</param>
+        /// <param name="numClasses">Number of target classes.</param>
+        /// <param name="k">User defined constant.</param>
+        /// <returns>Majority class for k nearest neighbors</returns>
         static int Vote(IndexAndDistance[] info, double[][] trainData,
         int numClasses, int k)
         {
@@ -86,18 +95,18 @@ namespace NearestNeighbors
             ++votes[c];
         }
         int mostVotes = 0;
-        int classWithMostVotes = 0;
+        int majorityClass = 0;
         for (int j = 0; j < numClasses; ++j) {
             if (votes[j] > mostVotes) {
             mostVotes = votes[j];
-            classWithMostVotes = j;
+            majorityClass = j;
             }
         }
-        return classWithMostVotes;
+        return majorityClass;
 }
 
         /// <summary>
-        /// Compare the distance of two points.
+        /// 
         /// </summary>
         public class IndexAndDistance : IComparable<IndexAndDistance>
         {
@@ -111,6 +120,5 @@ namespace NearestNeighbors
                 else return 0;
             }
         }
-
     }
 } // ns
