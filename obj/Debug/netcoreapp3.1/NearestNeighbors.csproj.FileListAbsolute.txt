@@ -1,0 +1,11 @@
+/home/btr-devel/Workspace/NearestNeighbors/bin/Debug/netcoreapp3.1/NearestNeighbors
+/home/btr-devel/Workspace/NearestNeighbors/bin/Debug/netcoreapp3.1/NearestNeighbors.deps.json
+/home/btr-devel/Workspace/NearestNeighbors/bin/Debug/netcoreapp3.1/NearestNeighbors.runtimeconfig.json
+/home/btr-devel/Workspace/NearestNeighbors/bin/Debug/netcoreapp3.1/NearestNeighbors.runtimeconfig.dev.json
+/home/btr-devel/Workspace/NearestNeighbors/bin/Debug/netcoreapp3.1/NearestNeighbors.dll
+/home/btr-devel/Workspace/NearestNeighbors/bin/Debug/netcoreapp3.1/NearestNeighbors.pdb
+/home/btr-devel/Workspace/NearestNeighbors/obj/Debug/netcoreapp3.1/NearestNeighbors.csprojAssemblyReference.cache
+/home/btr-devel/Workspace/NearestNeighbors/obj/Debug/netcoreapp3.1/NearestNeighbors.AssemblyInfoInputs.cache
+/home/btr-devel/Workspace/NearestNeighbors/obj/Debug/netcoreapp3.1/NearestNeighbors.AssemblyInfo.cs
+/home/btr-devel/Workspace/NearestNeighbors/obj/Debug/netcoreapp3.1/NearestNeighbors.dll
+/home/btr-devel/Workspace/NearestNeighbors/obj/Debug/netcoreapp3.1/NearestNeighbors.pdb
