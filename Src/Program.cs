@@ -1,6 +1,6 @@
 ﻿﻿using System;
 /// <summary>
-/// k Nearest Neighbors algorithm implementation in C#
+/// k Nearest Neighbors algorithm implementation in C#.
 /// </summary>
 namespace NearestNeighbors
 {
@@ -11,8 +11,11 @@ namespace NearestNeighbors
         {
             // Begin program
             Console.WriteLine("k Nearest Neighbors implementation using C#");
+            // Get training data
             double[][] trainData = LoadData();
+            // Number of unique classes
             int numClasses = 3;
+            //
             double[] unknown = new double[] {5.25, 1.75}; // Values to predict
             int k = 10; // User-defined constant - number of neighbors of which to form the voting pool.
             int prediction = Predict(unknown, trainData, numClasses, k);
