@@ -1,12 +1,13 @@
-﻿using System;
+﻿﻿using System;
 /// <summary>
-/// 
+/// k Nearest Neighbors algorithm implementation in C#
 /// </summary>
 namespace NearestNeighbors
 {
     class kNN
     {
         static void Main(string[] args)
+        
         {
             // Begin program
             Console.WriteLine("k Nearest Neighbors implementation using C#");
