@@ -1,4 +1,5 @@
-﻿﻿using System;
+﻿using System;
+
 /// <summary>
 /// k Nearest Neighbors algorithm implementation in C#.
 /// </summary>
@@ -11,14 +12,20 @@ namespace NearestNeighbors
         {
             // Begin program
             Console.WriteLine("k Nearest Neighbors implementation using C#");
+            // Select distance metric
+            string distanceMetric = "Euclidean";
+            Console.WriteLine("Distance metric: " + distanceMetric);
             // Get training data
             double[][] trainData = LoadData();
             // Number of unique classes
             int numClasses = 3;
-            //
-            double[] unknown = new double[] {5.25, 1.75}; // Values to predict
-            int k = 10; // User-defined constant - number of neighbors of which to form the voting pool.
+            // Values to predict
+            double[] unknown = new double[] {5.25, 1.75};
+            // User-defined constant - number of neighbors of which to form the voting pool.
+            int k = 10;
+            // 
             int prediction = Predict(unknown, trainData, numClasses, k);
+
             Console.WriteLine("Predicted Class: " + prediction);
         }
         /// <summary>
@@ -30,7 +37,7 @@ namespace NearestNeighbors
         /// <param name="k">User defined constant. </param>
         /// <returns></returns>
         static int Predict(double[] unknown,
-        double[][] trainData, int numClasses, int k)
+            double[][] trainData, int numClasses, int k)
         {
             int n = trainData.Length;
             IndexAndDistance[] info = new IndexAndDistance[n];
