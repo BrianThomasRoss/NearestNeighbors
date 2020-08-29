@@ -58,7 +58,7 @@ namespace NearestNeighbors
         /// <returns>A doubly nested array representation of the matrix.</returns>
         static double[][] LoadData()
         {
-            /// TODO: Allow to read from filepath or buffer
+            // TODO: Allow to read from filepath or buffer
             double[][] data = new double[10][];
 
             data[0] = new double[] {1.1, 5.0, 0};
@@ -78,14 +78,23 @@ namespace NearestNeighbors
         /// <summary>
         /// Euclidean distance between two points.
         /// </summary>
-        /// <param name="unknown"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        static double Distance(double[] unknown, double[] data)
+        /// <param name="left">Left vector</param>
+        /// <param name="right">Right vector</param>
+        /// <returns>Math.sqrt(x1-y1^2 ...)</returns>
+        static double Distance(double[] left, double[] right)
         {
+            // Initialize distance as 0
             double sum = 0.0;
-            for (int i = 0; i < unknown.Length; i++)
-                sum += (unknown[i] - data[i]) * (unknown[i] - data[i]);
+            // Validate vectors are of equal length
+            if (left.Length != right.Length - 1)
+            {
+                throw new System.ArgumentException("Vectors must be of equal length.");
+            }
+            // For each point 
+            for (int i = 0; i < left.Length; i++)
+                // Add to sum square of difference
+                sum += (left[i] - right[i]) * (left[i] - right[i]);
+            // Take square root
             return Math.Sqrt(sum);
         }
         /// <summary>
@@ -105,8 +114,11 @@ namespace NearestNeighbors
             int c = (int)trainData[idx][2];   // Class in last cell
             ++votes[c];
         }
+        // Initialize voting
         int mostVotes = 0;
+        // Initialize majority class
         int majorityClass = 0;
+        //
         for (int j = 0; j < numClasses; ++j) {
             if (votes[j] > mostVotes) {
             mostVotes = votes[j];
