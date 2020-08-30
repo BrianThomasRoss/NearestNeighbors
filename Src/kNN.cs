@@ -17,19 +17,21 @@ namespace NearestNeighbors
             // Begin program
             Console.WriteLine("k Nearest Neighbors implementation using C#");
             // Select distance metric
-            string distanceMetric = "euclidean";
+            string distanceMetric = "Euclidean";
             // Write out selection
             Console.WriteLine("Distance metric: " + distanceMetric);
             // Get training data
-            int[][] trainData = LoadData("../Data/Med-Cab.csv");
+            string dataPath = "Data/Med-Cab.csv";
+            double[][] trainData = LoadData(dataPath);
             // Each item in the training set is a unique class
             int numClasses = trainData.Length;
+            Console.WriteLine(numClasses);
             // Observation to predict. For validation purposes currently using an
             // exact copy of the strain "24K Gold" from the training dataset.
             double[] unknown = new double[] {0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,
-                0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,
-                0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,
-                0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0};
+                 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,
+                 0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,
+                 0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0};
             // User-defined constant - number of neighbors which form the voting pool.
             int k = 10;
             // Call the predict method, store return to variable.
@@ -53,14 +55,11 @@ namespace NearestNeighbors
             // Initialize IndexAndDistance Comparable
             IndexAndDistance[] info = new IndexAndDistance[n];
             // For vectors in training matrix
-            for (int i = 0; i < n; ++i) {
-                
+            for (int i = 0; i < n; ++i)
+            {
                 IndexAndDistance current = new IndexAndDistance();
                 // Check for distance metric
-                if (metric == "euclidean")
-                {
-                    double distance = EuclideanDistance(unknown, trainData[i]);
-                }
+                double distance = EuclideanDistance(unknown, trainData[i]);
                 current.idx = i;
                 current.distance = distance;
                 info[i] = current;
@@ -76,41 +75,51 @@ namespace NearestNeighbors
         static double[][] LoadData(string path)
         {
             // Initialize the StreamReader
-            StreamReader file = new StreamReader(path);
-            // Initialize local variables
+            StreamReader file = new StreamReader($"{path}");
+            // Initialize local variables.
             string line;
             int lines = 0;
+            // Hard coding the length of the array.
+            double[][] data = new double[329][];
             // Print out feedback for user.
-            Console.WriteLine("[i] reading data from {0}...", path);
+            Console.WriteLine("Reading data from '{0}'", path);
             // While there are still lines to read.
             while ((line = file.ReadLine()) != null)
             {
-                // Ignore headers
-                if (line != 0)
+                // Split row on delimiter
+                // This is the equivalent of list(some_string.split(',')) in Python
+                string[] splitLine = line.Split(',').ToArray();
+                // Initialize a new list
+                List<string> rowItems = new List<String>(splitLine.Length);
+                rowItems.AddRange(splitLine);
+                // Initialize an array of doubles.
+                // Last value is the class, which is string.
+                double[] rowDoubles = new double[rowItems.Count - 1];
+                // Initialize variable to store row class.
+                string rowClass = rowItems.ElementAt(rowItems.Count - 1);
+                // For each value in the row
+                for (int i = 0; i < rowItems.Count - 1; i++)
                 {
-                    // Split row on delimiter
-                    // This is the equivalent of list(some_string.split(',')) in Python
-                    string[] splitLine = line.Split(',').ToArray();
-                    // Initialize a new list
-                    List<string> rowItems = new List<String>(splitLine.Length);
-                    rowItems.AddRange(splitLine);
-                    // Initialize an array of doubles.
-                    // Last value is the class, which is string.
-                    double[] rowDoubles = new double[rowItems.Count - 1];
-                    // Initialize variable to store row class.
-                    string rowClass = rowItems.ElementAt(rowItems.Count - 1);
-                    // For each value in the row
-                    for (int i = 0; i < rowItems.Count - 1; i++)
-                    {
-                        
-                    }
-
+                    // Cast each value to double
+                    double value = Double.Parse(rowItems.ElementAt(i));
+                    Console.WriteLine(value);
+                    // Set array index to double
+                    rowDoubles[i] = value;
                 }
+                Console.WriteLine(rowDoubles);
+                // Store the values in the main array
+                data[lines - 1] = rowDoubles;
+                // Increment
+
+                lines++;
             }
-
-
-
-
+            // Inform user file read has completed, return summary statistics.
+            Console.WriteLine("[+] done. {0} observations loaded.", lines);
+            // Explicitly close out file.
+            file.Close();
+            // Return the array.
+            Console.WriteLine(data);
+            return data;
         }
         /// <summary>
         /// Euclidean distance between two points.
