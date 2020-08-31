@@ -1,204 +1,157 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Threading.Tasks;
 
-/// <summary>
-/// k Nearest Neighbors algorithm implementation in C#.
-/// </summary>
-namespace NearestNeighbors
+namespace kNN
 {
     class kNN
     {
-        static void Main(string[] args)
-        
+        private int lines;
+        // Initialize a collection to store training data
+        private List<double[]>   trainingSetValues = new List<double[]>();
+        // Initialize a collection to store the testing data.
+        private List<string>     trainingSetClasses = new List<string>();
+        // same for the test input
+        private List<double[]>   testSetValues = new List<double[]>();
+        private List<string>     testSetClasses = new List<string>();
+        private int K;
+        // Enumerables
+        public enum DataType
         {
-            // Begin program
-            Console.WriteLine("k Nearest Neighbors implementation using C#");
-            // Select distance metric
-            string distanceMetric = "Euclidean";
-            // Write out selection
-            Console.WriteLine("Distance metric: " + distanceMetric);
-            // Get training data
-            string dataPath = "Data/Med-Cab.csv";
-            double[][] trainData = LoadData(dataPath);
-            // Each item in the training set is a unique class
-            int numClasses = trainData.Length;
-            Console.WriteLine(numClasses);
-            // Observation to predict. For validation purposes currently using an
-            // exact copy of the strain "24K Gold" from the training dataset.
-            double[] unknown = new double[] {0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,
-                 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,
-                 0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,
-                 0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0};
-            // User-defined constant - number of neighbors which form the voting pool.
-            int k = 10;
-            // Call the predict method, store return to variable.
-            int prediction = Predict(unknown, trainData, numClasses, k, distanceMetric);
-            // Write out predicted class
-            Console.WriteLine("Predicted Class: " + prediction);
-        }
+            TRAININGDATA, TESTDATA
+        };
         /// <summary>
-        /// Return the predicted class.
+        /// Loads data from a CSV file.
         /// </summary>
-        /// <param name="unknown"></param>
-        /// <param name="trainData">Training dataset: X</param>
-        /// <param name="numClasses">Number of classes: y</param>
-        /// <param name="k">User defined constant. </param>
-        /// <returns></returns>
-        static int Predict(double[] unknown,
-            double[][] trainData, int numClasses, int k, string metric)
+        /// <param name="path">The filepath to the CSV file.</param>
+        /// <param name="dataType">One of testing or training sets.</param>
+        public void LoadData(string path, DataType dataType)
         {
-            // Get size of matrix
-            int n = trainData.Length;
-            // Initialize IndexAndDistance Comparable
-            IndexAndDistance[] info = new IndexAndDistance[n];
-            // For vectors in training matrix
-            for (int i = 0; i < n; ++i)
-            {
-                IndexAndDistance current = new IndexAndDistance();
-                // Check for distance metric
-                double distance = EuclideanDistance(unknown, trainData[i]);
-                current.idx = i;
-                current.distance = distance;
-                info[i] = current;
-            }
-            int result = Vote(info, trainData, numClasses, k);
-            return result;
-        }
-        /// <summary>
-        /// Loads Data from CSV file.
-        /// </summary>
-        /// <param name="path">Path to data file.</param>
-        /// <returns>A doubly nested array representation of the matrix.</returns>
-        static double[][] LoadData(string path)
-        {
-            // Initialize the StreamReader
-            StreamReader file = new StreamReader($"{path}");
+            // Instantiate a new stream reader.
+            StreamReader file = new StreamReader(path);
             // Initialize local variables.
-            string line;
-            int lines = 0;
-            // Hard coding the length of the array.
-            double[][] data = new double[329][];
-            // Print out feedback for user.
-            Console.WriteLine("Reading data from '{0}'", path);
-            // While there are still lines to read.
-            while ((line = file.ReadLine()) != null)
+            string row;
+            this.lines = 0;
+            // Print output to user to ensure proper filepath.
+            Console.WriteLine("[i] reading data from {0} ...", path);
+            // While there are still lines in the file.
+            while((row = file.ReadLine()) != null)
             {
-                // Split row on delimiter
-                // This is the equivalent of list(some_string.split(',')) in Python
-                string[] splitLine = line.Split(',').ToArray();
-                // Initialize a new list
-                List<string> rowItems = new List<String>(splitLine.Length);
-                rowItems.AddRange(splitLine);
-                // Initialize an array of doubles.
-                // Last value is the class, which is string.
-                double[] rowDoubles = new double[rowItems.Count - 1];
-                // Initialize variable to store row class.
-                string rowClass = rowItems.ElementAt(rowItems.Count - 1);
-                // For each value in the row
-                for (int i = 0; i < rowItems.Count - 1; i++)
+                // Split the row and store in an array of strings
+                // this is most similar to list(some_string.split(','))
+                // in Python.
+                string[] splitRow = row.Split(',').ToArray();
+                // Add the values to a list
+                List<string> lineItems = new List<string>(splitRow.Length);           
+                lineItems.AddRange(splitRow);
+                // Initialize an array of doubles to store the casted values
+                double[] lineDoubles = new double[lineItems.Count - 1];
+                // A string object which holds the class label.
+                string lineClass = lineItems.ElementAt(lineItems.Count - 1);
+                // For every value except the class label.
+                for(int i = 0; i < lineItems.Count - 1; i++)
                 {
-                    // Cast each value to double
-                    double value = Double.Parse(rowItems.ElementAt(i));
-                    Console.WriteLine(value);
-                    // Set array index to double
-                    rowDoubles[i] = value;
+                    // Cast the value to double
+                    double val = Double.Parse(lineItems.ElementAt(i));
+                    lineDoubles[i] = val;
                 }
-                Console.WriteLine(rowDoubles);
-                // Store the values in the main array
-                data[lines - 1] = rowDoubles;
-                // Increment
 
-                lines++;
+                // Store the data to the appropriate arrays
+                if (dataType == DataType.TRAININGDATA)
+                {
+                    this.trainingSetValues.Add(lineDoubles);
+                    this.trainingSetClasses.Add(lineClass);
+                }
+                else if(dataType == DataType.TESTDATA)
+                {
+                    this.testSetValues.Add(lineDoubles);
+                    this.testSetClasses.Add(lineClass);
+                }
+                // Increment.
+                this.lines++;
             }
-            // Inform user file read has completed, return summary statistics.
-            Console.WriteLine("[+] done. {0} observations loaded.", lines);
-            // Explicitly close out file.
+            // Inform user file has finished loading. Return summary statistics.
+            Console.WriteLine("[+] done. read {0} lines.", this.lines);
+            // Explicitly close the connection
             file.Close();
-            // Return the array.
-            Console.WriteLine(data);
-            return data;
         }
         /// <summary>
-        /// Euclidean distance between two points.
+        /// Predict the class label.
         /// </summary>
-        /// <param name="left">Left vector</param>
-        /// <param name="right">Right vector</param>
-        /// <returns>Math.sqrt(x1-y1^2 ...)</returns>
-        static double EuclideanDistance(double[] left, double[] right)
+        /// <param name="k">Voting pool.</param>
+        public void Predict(int k)
         {
-            // Initialize distance as 0
+            // Initialize local variables.
+            this.K = k;
+            double[][] distances = new double[trainingSetValues.Count][];
+            double accuracy = 0;
+            double correct = 0, testNumber = 0;
+
+            for (int i = 0; i < trainingSetValues.Count; i++)
+                distances[i] = new double[2];
+
+            Console.WriteLine("[i] classifying...");
+
+            // For the values in the test set.
+            for(var test = 0; test < this.testSetValues.Count; test++)
+            {
+                Parallel.For(0, trainingSetValues.Count, index =>
+                    {
+                        var dist = EuclideanDistance(this.testSetValues[test], this.trainingSetValues[index]);
+                        distances[index][0] = dist;
+                        distances[index][1] = index;
+                    }
+                );
+
+                Console.WriteLine("closest K={0} neighbors: ", this.K);
+
+                
+                var sortedDistances = distances.AsParallel().OrderBy(t => t[0]).Take(this.K);
+
+                string realClass = testSetClasses[test];
+
+                // Validation.
+                foreach (var d in sortedDistances)
+                {
+                    string predictedClass = trainingSetClasses[(int) d[1]];
+                    if (string.Equals(realClass, predictedClass) == true)
+                        correct++;
+                    testNumber++;
+                    Console.WriteLine("test {0}: real class: {1}\n predicted class: {2}", test, realClass, predictedClass);
+                }
+            }
+
+            Console.WriteLine();
+
+            // compute and print the accuracy
+            accuracy = (correct / testNumber) * 100;
+            Console.WriteLine("[i] accuracy: {0}%", accuracy);
+
+        }
+        /// <summary>
+        /// Calculate the Euclidean distance between two points in
+        /// n-dimensional space.
+        /// </summary>
+        /// <param name="left">The left vector.</param>
+        /// <param name="right">The right vector.</param>
+        /// <returns></returns>
+        private static double EuclideanDistance(double[] left, double[] right)
+        {
             double sum = 0.0;
-            // Validate vectors are of equal length
-            if (left.Length != right.Length - 1)
+            // Check that vectors are of equal magnitude.
+            if (left.Length != right.Length)
             {
-                // If not true throw exception.
-                throw new System.ArgumentException("Vectors must be of equal length.");
+                // If false throw Exception.
+                throw new Exception("Vectors must have equal magnitudes.");
             }
-            // For each point 
-            for (int i = 0; i < left.Length; i++)
-                // Add to sum square of difference
+            // For each value in the array
+            for(int i = 0; i < left.Length; i++)
+            {
                 sum += (left[i] - right[i]) * (left[i] - right[i]);
-            // Take square root of sum
+            }
             return Math.Sqrt(sum);
-        }
-        /// <summary>
-        /// Return predicted class for each observation.
-        /// </summary>
-        /// <param name="info">Index and distance information.</param>
-        /// <param name="trainData">X: data to train with.</param>
-        /// <param name="numClasses">Number of target classes.</param>
-        /// <param name="k">User defined constant.</param>
-        /// <returns>Majority class for k nearest neighbors</returns>
-        static int Vote(IndexAndDistance[] info, double[][] trainData,
-        int numClasses, int k)
-        { 
-            // One cell per class   
-            int[] votes = new int[numClasses];  // One cell per class
-            // First neighbor
-            for (int i = 0; i < k; ++i) {
-                // Which training item
-                int idx = info[i].idx;
-                // Class is in the last cell
-                int c = (int)trainData[idx][2];
-                ++votes[c];
-        }
-        // Initialize voting variable
-        int mostVotes = 0;
-        // Initialize majority class variable
-        int majorityClass = 0;
-        // For class in number of classes
-        for (int j = 0; j < numClasses; ++j) 
-        {
-            // If this class has more votes than the mostVotes
-            if (votes[j] > mostVotes)
-            {
-            // Reassign variable    
-            mostVotes = votes[j];
-            // Assign majority class
-            majorityClass = j;
-            }
-        }
-        // Return the majority class when loop is finished
-        return majorityClass;
-}
-
-        /// <summary>
-        /// Compare distances and index.
-        /// </summary>
-        public class IndexAndDistance : IComparable<IndexAndDistance>
-        {
-            public int idx;
-            public double distance;
-
-            public int CompareTo(IndexAndDistance other)
-            {
-                if (this.distance < other.distance) return -1;
-                else if (this.distance > other.distance) return + 1;
-                else return 0;
-            }
         }
     }
 } // ns
